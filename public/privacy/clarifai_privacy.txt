@@ -1,0 +1,8 @@
+From the website signup page:
+
+"In order to use Clarifai products, you will be submitting images to Clarifai, Inc. and Clarifai, Inc. will use its proprietary technology to recognize the images and learn from them, building a database of concepts and profiles. Clarifai, Inc. will also use the images to improve its technologies. By checking this box, you consent to Clarifai, Inc.'s processing, storage, reproduction, copy and use of the images in the United States.
+
+You may withdraw from this consent at any time by contacting privacy@clarifai.com.
+
+(Please note that Clarifai, Inc. will not publicly display the images without asking you for separate consent.)"
+
