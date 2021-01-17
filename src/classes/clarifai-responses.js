@@ -178,6 +178,16 @@ export default class ClarifaiGeneralResponseObject {
     }
 }
 
-export class AnotherResponseType {
-    
+export class FaceDetectModelResponse {
+    outputs = [];
+    rawData = {};
+    status = {};
+
+    constructor(object){
+        if(object){
+            this.outputs = object.hasOwnProperty('outputs') ? object.outputs : this.outputs;
+            this.outputs = object.hasOwnProperty('rawData') ? object.rawData : this.rawData;
+            this.outputs = object.hasOwnProperty('outputs') ? object.outputs : this.outputs;
+        }
+    }
 }

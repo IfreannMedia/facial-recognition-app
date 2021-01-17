@@ -7,7 +7,7 @@ import Rank from "./components/rank/rank.js";
 import Particles from 'react-particles-js';
 import { Component } from 'react';
 import Clarifai from 'clarifai';
-import ClarifaiGeneralResponseObject from './classes/clarifai-responses'
+import { ClarifaiGeneralResponseObject, FaceDetectModelResponse } from './classes/clarifai-responses'
 
 const app = new Clarifai.App({
  apiKey: 'YOUR API KEY GOES HERE'
@@ -30,28 +30,56 @@ class App extends Component {
     super();
     this.state = {
       input: '',
-      imageUrl: ''
+      imageUrl: '',
+      box: {
+        bottom_row: null,
+        left_col: null,
+        right_col: null,
+        top_row: null
+      },
+      boxes: []
     };
   }
 
+  currentImageClarifaiResponse = new FaceDetectModelResponse();
+
+  calculateFacialBoundingBoxes = (clarifaiResponse) => {
+    let img = document.getElementById("input-image");
+    const width = Number(img.width);
+    const height = Number(img.height);
+    let boxes = [];
+    clarifaiResponse.outputs[0].data.regions.forEach((element, i) => {
+      boxes.push({
+        leftCol: element.region_info.bounding_box.left_col * width,
+        topRow: element.region_info.bounding_box.top_row * height,
+        rightCol: width - (element.region_info.bounding_box.right_col * width),
+        bottomRow: height - (element.region_info.bounding_box.bottom_row * height)
+      });
+    });
+    return boxes;
+  }
+
+  displayFaceBoxes = (boxes) => {
+    this.setState({boxes})
+  }
+
+
   onInputChange = (event) => {
-    this.setState({input: event.target.value});
+    this.setState({ input: event.target.value });
   }
 
   onButtonSubmit = () => {
-    this.setState({imageUrl: this.state.input});
-    this.useClarifaiForUrl(this.state.imageUrl);
+    this.setState({ imageUrl: this.state.input }, this.useClarifaiForUrl);
   }
 
   // the image url can either be a URL or a base64 image, so file upload will work too
   useClarifaiForUrl = (image) => {
-    app.models.predict(Clarifai.GENERAL_MODEL, image).then(
+    app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.imageUrl).then(
       (success) => {
-        let generalResponse = new ClarifaiGeneralResponseObject();
-        generalResponse.response = success.outputs[0];
-      },
-      (error) => {
-        console.log('success', error)
+        this.currentImageClarifaiResponse = new FaceDetectModelResponse(success);
+        this.displayFaceBoxes(this.calculateFacialBoundingBoxes(this.currentImageClarifaiResponse));
+      }).catch((err) => {
+        console.log(err);
       })
   }
 
@@ -63,7 +91,7 @@ class App extends Component {
         <Logo />
         <Rank />
         <ImageLinkForm onInputChange={this.onInputChange} onButtonSubmit={this.onButtonSubmit} />
-        <FaceRecognition imageUrl={this.state.imageUrl} />
+        <FaceRecognition boxes={this.state.boxes} imageUrl={this.state.imageUrl} />
       </div>
     );
   }
