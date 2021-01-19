@@ -7,7 +7,8 @@ import Rank from "./components/rank/rank.js";
 import Particles from 'react-particles-js';
 import { Component } from 'react';
 import Clarifai from 'clarifai';
-import { ClarifaiGeneralResponseObject, FaceDetectModelResponse } from './classes/clarifai-responses'
+import { FaceDetectModelResponse } from './classes/clarifai-responses'
+import SignIn from './components/sign-in/sign-in.js'
 
 const app = new Clarifai.App({
  apiKey: 'YOUR API KEY GOES HERE'
@@ -31,13 +32,14 @@ class App extends Component {
     this.state = {
       input: '',
       imageUrl: '',
-      box: {
-        bottom_row: null,
-        left_col: null,
-        right_col: null,
-        top_row: null
-      },
-      boxes: []
+      boxes: [],
+      route: 'signIn',
+      // box: {
+      //   bottom_row: null,
+      //   left_col: null,
+      //   right_col: null,
+      //   top_row: null
+      // },
     };
   }
 
@@ -60,7 +62,7 @@ class App extends Component {
   }
 
   displayFaceBoxes = (boxes) => {
-    this.setState({boxes})
+    this.setState({ boxes })
   }
 
 
@@ -88,10 +90,15 @@ class App extends Component {
       <div className="App">
         <Particles className='particles' params={particlesParams} />
         <Navigation />
-        <Logo />
-        <Rank />
-        <ImageLinkForm onInputChange={this.onInputChange} onButtonSubmit={this.onButtonSubmit} />
-        <FaceRecognition boxes={this.state.boxes} imageUrl={this.state.imageUrl} />
+        {this.state.route.toLowerCase() === 'signin' ?
+          <SignIn />
+          :
+          <div><Logo />
+            <Rank />
+            <ImageLinkForm onInputChange={this.onInputChange} onButtonSubmit={this.onButtonSubmit} />
+            <FaceRecognition boxes={this.state.boxes} imageUrl={this.state.imageUrl} />
+          </div>
+        }
       </div>
     );
   }
