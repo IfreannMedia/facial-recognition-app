@@ -9,6 +9,7 @@ import { Component } from 'react';
 import Clarifai from 'clarifai';
 import { FaceDetectModelResponse } from './classes/clarifai-responses'
 import SignIn from './components/sign-in/sign-in.js'
+import Register from './components/register/register.js'
 
 const app = new Clarifai.App({
  apiKey: 'YOUR API KEY GOES HERE'
@@ -34,6 +35,7 @@ class App extends Component {
       imageUrl: '',
       boxes: [],
       route: 'signIn',
+      isSignedIn: false
       // box: {
       //   bottom_row: null,
       //   left_col: null,
@@ -85,19 +87,28 @@ class App extends Component {
       })
   }
 
+  onRouteChange = (route) => {
+    this.setState({ isSignedIn: route === 'home' ? true : false });
+    this.setState({ route: route });
+
+  }
+
   render() {
+    const { isSignedIn, imageUrl, route, boxes } = this.state;
     return (
       <div className="App">
         <Particles className='particles' params={particlesParams} />
-        <Navigation />
-        {this.state.route.toLowerCase() === 'signin' ?
-          <SignIn />
-          :
-          <div><Logo />
-            <Rank />
-            <ImageLinkForm onInputChange={this.onInputChange} onButtonSubmit={this.onButtonSubmit} />
-            <FaceRecognition boxes={this.state.boxes} imageUrl={this.state.imageUrl} />
-          </div>
+        <Navigation onRouteChange={this.onRouteChange} isSignedIn={isSignedIn} />
+
+        {route.toLowerCase() === 'signin' ?
+          <SignIn onRouteChange={this.onRouteChange} />
+          : route.toLowerCase() === 'register' ?
+            <Register onRouteChange={this.onRouteChange} />
+            : <div><Logo />
+              <Rank />
+              <ImageLinkForm onInputChange={this.onInputChange} onButtonSubmit={this.onButtonSubmit} />
+              <FaceRecognition boxes={boxes} imageUrl={imageUrl} />
+            </div>
         }
       </div>
     );
