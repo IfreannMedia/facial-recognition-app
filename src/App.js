@@ -35,14 +35,19 @@ class App extends Component {
       imageUrl: '',
       boxes: [],
       route: 'signIn',
-      isSignedIn: false
-      // box: {
-      //   bottom_row: null,
-      //   left_col: null,
-      //   right_col: null,
-      //   top_row: null
-      // },
+      isSignedIn: false,
+      user: {
+        id: '',
+        name: '',
+        email: '',
+        entries: 0,
+        joined: ''
+    }
     };
+  }
+
+  loadUser = (user, callback) => {
+    this.setState({user: user}, callback());
   }
 
   currentImageClarifaiResponse = new FaceDetectModelResponse();
@@ -77,9 +82,17 @@ class App extends Component {
   }
 
   // the image url can either be a URL or a base64 image, so file upload will work too
-  useClarifaiForUrl = (image) => {
+  useClarifaiForUrl = () => {
     app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.imageUrl).then(
       (success) => {
+        fetch('http://localhost:3000/image', {
+          method: 'put',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+              id: this.state.user.id
+          })
+        }).then(res => res.json())
+        .then((entryCount)=> this.setState(Object.assign(this.state.user, {entries: entryCount})));
         this.currentImageClarifaiResponse = new FaceDetectModelResponse(success);
         this.displayFaceBoxes(this.calculateFacialBoundingBoxes(this.currentImageClarifaiResponse));
       }).catch((err) => {
@@ -90,7 +103,6 @@ class App extends Component {
   onRouteChange = (route) => {
     this.setState({ isSignedIn: route === 'home' ? true : false });
     this.setState({ route: route });
-
   }
 
   render() {
@@ -101,11 +113,11 @@ class App extends Component {
         <Navigation onRouteChange={this.onRouteChange} isSignedIn={isSignedIn} />
 
         {route.toLowerCase() === 'signin' ?
-          <SignIn onRouteChange={this.onRouteChange} />
+          <SignIn loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
           : route.toLowerCase() === 'register' ?
-            <Register onRouteChange={this.onRouteChange} />
+            <Register loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
             : <div><Logo />
-              <Rank />
+              <Rank name={this.state.user.name} entries={this.state.user.entries} />
               <ImageLinkForm onInputChange={this.onInputChange} onButtonSubmit={this.onButtonSubmit} />
               <FaceRecognition boxes={boxes} imageUrl={imageUrl} />
             </div>
