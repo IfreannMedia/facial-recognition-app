@@ -85,7 +85,7 @@ class App extends Component {
   useClarifaiForUrl = () => {
     app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.imageUrl).then(
       (success) => {
-        fetch('http://localhost:3000/image', {
+        fetch('http://localhost:3001/image', {
           method: 'put',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
