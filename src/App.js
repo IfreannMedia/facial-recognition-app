@@ -10,6 +10,7 @@ import Clarifai from 'clarifai';
 import { FaceDetectModelResponse } from './classes/clarifai-responses'
 import SignIn from './components/sign-in/sign-in.js'
 import Register from './components/register/register.js'
+import Routes from './enums/routes-enum';
 
 const app = new Clarifai.App({
  apiKey: 'YOUR API KEY GOES HERE'
@@ -24,6 +25,21 @@ const particlesParams = {
         value_area: 800
       }
     }
+  }
+}
+
+const initialState = {
+  input: '',
+  imageUrl: '',
+  boxes: [],
+  route: 'signIn',
+  isSignedIn: false,
+  user: {
+    id: '',
+    name: '',
+    email: '',
+    entries: 0,
+    joined: ''
   }
 }
 
@@ -42,12 +58,12 @@ class App extends Component {
         email: '',
         entries: 0,
         joined: ''
-    }
+      }
     };
   }
 
   loadUser = (user, callback) => {
-    this.setState({user: user}, callback());
+    this.setState({ user: user, isSignedIn: true }, callback());
   }
 
   currentImageClarifaiResponse = new FaceDetectModelResponse();
@@ -76,7 +92,7 @@ class App extends Component {
   onInputChange = (event) => {
     this.setState({ input: event.target.value });
   }
-
+  
   onButtonSubmit = () => {
     this.setState({ imageUrl: this.state.input }, this.useClarifaiForUrl);
   }
@@ -89,10 +105,10 @@ class App extends Component {
           method: 'put',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-              id: this.state.user.id
+            id: this.state.user.id
           })
         }).then(res => res.json())
-        .then((entryCount)=> this.setState(Object.assign(this.state.user, {entries: entryCount})));
+          .then((entryCount) => this.setState(Object.assign(this.state.user, { entries: entryCount })));
         this.currentImageClarifaiResponse = new FaceDetectModelResponse(success);
         this.displayFaceBoxes(this.calculateFacialBoundingBoxes(this.currentImageClarifaiResponse));
       }).catch((err) => {
@@ -101,7 +117,9 @@ class App extends Component {
   }
 
   onRouteChange = (route) => {
-    this.setState({ isSignedIn: route === 'home' ? true : false });
+    if (route === Routes.signIn) {
+      this.setState(initialState);
+    }
     this.setState({ route: route });
   }
 
@@ -110,11 +128,11 @@ class App extends Component {
     return (
       <div className="App">
         <Particles className='particles' params={particlesParams} />
-        <Navigation onRouteChange={this.onRouteChange} isSignedIn={isSignedIn} />
+        <Navigation onRouteChange={this.onRouteChange} isSignedIn={isSignedIn} route={route} />
 
-        {route.toLowerCase() === 'signin' ?
+        {route.toLowerCase() === Routes.signIn ?
           <SignIn loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
-          : route.toLowerCase() === 'register' ?
+          : route.toLowerCase() === Routes.register ?
             <Register loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
             : <div><Logo />
               <Rank name={this.state.user.name} entries={this.state.user.entries} />
