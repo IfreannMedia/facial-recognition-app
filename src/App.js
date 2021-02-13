@@ -101,22 +101,28 @@ class App extends Component {
       body: JSON.stringify({
         url: this.state.imageUrl
       })
-    }).then(res => res.json())
-      .then(
-        (success) => {
-          fetch(baseUrl + 'image', {
-            method: 'put',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              id: this.state.user.id
-            })
-          }).then(res => res.json())
-            .then((entryCount) => this.setState(Object.assign(this.state.user, { entries: entryCount })));
-          this.currentImageClarifaiResponse = new FaceDetectModelResponse(success);
-          this.displayFaceBoxes(this.calculateFacialBoundingBoxes(this.currentImageClarifaiResponse));
-        }).catch((err) => {
-          console.log(err);
-        })
+    }).then(res => {
+      if (res.status !== 200) {
+        return Promise.reject(res.status + ': ' + res.statusText);
+      }
+      else {
+        return res.json();
+      }
+    })
+      .then((success) => {
+        fetch(baseUrl + 'image', {
+          method: 'put',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: this.state.user.id
+          })
+        }).then(res => res.json()).then((entryCount) => this.setState(Object.assign(this.state.user, { entries: entryCount })));
+        this.currentImageClarifaiResponse = new FaceDetectModelResponse(success);
+        this.displayFaceBoxes(this.calculateFacialBoundingBoxes(this.currentImageClarifaiResponse));
+      }).catch((err) => {
+        console.error(new Error(err));
+      })
+      
   }
 
   onRouteChange = (route) => {
