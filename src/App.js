@@ -11,6 +11,7 @@ import SignIn from './components/sign-in/sign-in.js'
 import Register from './components/register/register.js'
 import Routes from './enums/routes-enum';
 
+const baseUrl = 'https://secret-brushlands-44672.herokuapp.com/';
 const particlesParams = {
   particles: {
     number: {
@@ -94,7 +95,7 @@ class App extends Component {
 
   // the image url can either be a URL or a base64 image, so file upload will work too
   useClarifaiForUrl = () => {
-    fetch('http://localhost:3001/imageurl', {
+    fetch(baseUrl + 'imageurl', {
       method: 'post',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -103,7 +104,7 @@ class App extends Component {
     }).then(res => res.json())
       .then(
         (success) => {
-          fetch('http://localhost:3001/image', {
+          fetch(baseUrl + 'image', {
             method: 'put',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -133,9 +134,9 @@ class App extends Component {
         <Navigation onRouteChange={this.onRouteChange} isSignedIn={isSignedIn} route={route} />
 
         {route.toLowerCase() === Routes.signIn ?
-          <SignIn loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
+          <SignIn baseUrl={baseUrl} loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
           : route.toLowerCase() === Routes.register ?
-            <Register loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
+            <Register baseUrl={baseUrl} loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
             : <div><Logo />
               <Rank name={this.state.user.name} entries={this.state.user.entries} />
               <ImageLinkForm onInputChange={this.onInputChange} onButtonSubmit={this.onButtonSubmit} />
