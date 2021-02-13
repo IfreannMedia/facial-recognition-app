@@ -6,15 +6,10 @@ import FaceRecognition from "./components/face-recognition/face-recognition.js";
 import Rank from "./components/rank/rank.js";
 import Particles from 'react-particles-js';
 import { Component } from 'react';
-import Clarifai from 'clarifai';
 import { FaceDetectModelResponse } from './classes/clarifai-responses'
 import SignIn from './components/sign-in/sign-in.js'
 import Register from './components/register/register.js'
 import Routes from './enums/routes-enum';
-
-const app = new Clarifai.App({
- apiKey: 'YOUR API KEY GOES HERE'
-});
 
 const particlesParams = {
   particles: {
@@ -92,28 +87,35 @@ class App extends Component {
   onInputChange = (event) => {
     this.setState({ input: event.target.value });
   }
-  
+
   onButtonSubmit = () => {
     this.setState({ imageUrl: this.state.input }, this.useClarifaiForUrl);
   }
 
   // the image url can either be a URL or a base64 image, so file upload will work too
   useClarifaiForUrl = () => {
-    app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.imageUrl).then(
-      (success) => {
-        fetch('http://localhost:3001/image', {
-          method: 'put',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            id: this.state.user.id
-          })
-        }).then(res => res.json())
-          .then((entryCount) => this.setState(Object.assign(this.state.user, { entries: entryCount })));
-        this.currentImageClarifaiResponse = new FaceDetectModelResponse(success);
-        this.displayFaceBoxes(this.calculateFacialBoundingBoxes(this.currentImageClarifaiResponse));
-      }).catch((err) => {
-        console.log(err);
+    fetch('http://localhost:3001/imageurl', {
+      method: 'post',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        url: this.state.imageUrl
       })
+    }).then(res => res.json())
+      .then(
+        (success) => {
+          fetch('http://localhost:3001/image', {
+            method: 'put',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              id: this.state.user.id
+            })
+          }).then(res => res.json())
+            .then((entryCount) => this.setState(Object.assign(this.state.user, { entries: entryCount })));
+          this.currentImageClarifaiResponse = new FaceDetectModelResponse(success);
+          this.displayFaceBoxes(this.calculateFacialBoundingBoxes(this.currentImageClarifaiResponse));
+        }).catch((err) => {
+          console.log(err);
+        })
   }
 
   onRouteChange = (route) => {
