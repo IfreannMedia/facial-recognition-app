@@ -24,21 +24,32 @@ class Register extends React.Component {
   }
 
   onSubmitRegister = () => {
+    const body = {
+      email: this.state.email,
+      password: this.state.password,
+      name: this.state.name
+    };
+    if(!body.email || !body.password || !body.name){
+      return;
+    }
     fetch(this.props.baseUrl + 'register', {
       method: 'post',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        email: this.state.email,
-        password: this.state.password,
-        name: this.state.name
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
     })
-      .then(response => response.json())
-      .then(user => {
-        if (user) {
-          this.props.loadUser(user, ()=> this.props.onRouteChange('home'));
+      .then(res => {
+        if (res.status !== 200) {
+          return Promise.reject(res.status + ': ' + res.statusText);
+        }
+        else {
+          return res.json();
         }
       })
+      .then(user => {
+        if (user && user.id) {
+          this.props.loadUser(user, () => this.props.onRouteChange('home'));
+        }
+      }).catch(err => console.error);
   }
   render() {
     return (
