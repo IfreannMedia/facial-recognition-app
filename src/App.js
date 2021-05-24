@@ -11,7 +11,7 @@ import SignIn from './components/sign-in/sign-in.js'
 import Register from './components/register/register.js'
 import Routes from './enums/routes-enum';
 
-const baseUrl = 'https://secret-brushlands-44672.herokuapp.com/';
+const baseUrl = 'https://face-recog-be.herokuapp.com/';//
 const particlesParams = {
   particles: {
     number: {
