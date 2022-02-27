@@ -1,4 +1,4 @@
-# Face Recog Frontend
+# Face Recog Frontend | React
 
 This is a react frontend for a web page where users can sign in/register and utilize a face recognition API: https://face-recog-fe.herokuapp.com/
 
