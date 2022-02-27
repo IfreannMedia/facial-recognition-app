@@ -1,5 +1,7 @@
 # Getting Started with Create React App
 
+This is a react frontend for a web page where users can sign in/register and utilize a face recognition API: https://face-recog-fe.herokuapp.com/
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
